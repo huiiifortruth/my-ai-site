@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
+import ReactMarkdown from "react-markdown"; // 1. 引入解析器
 
 export default function AIChat() {
   const router = useRouter();
@@ -29,7 +30,6 @@ export default function AIChat() {
     setIsLoading(true);
 
     try {
-      // 请求我们自己的后端接口
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -47,13 +47,11 @@ export default function AIChat() {
 
   return (
     <main className="flex flex-col h-screen bg-gray-50">
-      {/* 顶部导航 */}
       <nav className="bg-white border-b p-4 flex items-center gap-4 shadow-sm">
         <button onClick={() => router.push("/")} className="text-blue-600 font-bold text-sm">← 返回广场</button>
         <h1 className="font-bold text-gray-800">AI 智能助手</h1>
       </nav>
 
-      {/* 聊天窗口 */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((msg, index) => (
           <div key={index} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
@@ -62,7 +60,16 @@ export default function AIChat() {
               ? "bg-blue-600 text-white rounded-br-none" 
               : "bg-white text-gray-800 border border-gray-100 rounded-bl-none shadow-sm"
             }`}>
-              {msg.content}
+              {/* 2. 区分渲染逻辑 */}
+              {msg.role === "user" ? (
+                // 用户输入的内容直接原样显示
+                <div className="whitespace-pre-wrap">{msg.content}</div>
+              ) : (
+                // AI 的内容使用 Markdown 渲染，并加上 Tailwind 的 prose 类名来美化排版
+                <div className="prose prose-sm max-w-none prose-p:leading-relaxed prose-pre:p-0">
+                  <ReactMarkdown>{msg.content}</ReactMarkdown>
+                </div>
+              )}
             </div>
           </div>
         ))}
@@ -75,7 +82,6 @@ export default function AIChat() {
         )}
       </div>
 
-      {/* 输入框 */}
       <div className="p-4 bg-white border-t">
         <div className="max-w-4xl mx-auto flex gap-2">
           <input
