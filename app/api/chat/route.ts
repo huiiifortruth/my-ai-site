@@ -34,7 +34,7 @@ export async function POST(req: Request) {
 
     // --- 3. 构建提示词并调用 AI ---
     const completion = await openai.chat.completions.create({
-      model: "deepseek-chat",
+      model: "deepseek-v4-pro",
       messages: [
         { 
           role: "system", 
